@@ -189,17 +189,22 @@ export default function Demo() {
                 <form onSubmit={handleBookingSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-airline-900 mb-2">
-                      Flight Number
+                      Select Flight
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="flightNumber"
                       value={bookingForm.flightNumber}
                       onChange={handleBookingChange}
-                      placeholder="e.g., AI101"
                       required
-                      className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
-                    />
+                      className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent bg-white cursor-pointer"
+                    >
+                      <option value="">-- Select a flight --</option>
+                      {flights.map((flight) => (
+                        <option key={flight.id} value={flight.number}>
+                          {flight.number} - {flight.from} → {flight.to} ({flight.departure})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
