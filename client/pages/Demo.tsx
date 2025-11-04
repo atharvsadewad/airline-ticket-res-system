@@ -34,6 +34,27 @@ export default function Demo() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [bookingResult, setBookingResult] = useState<BookingResponse | null>(null);
   const [searchResult, setSearchResult] = useState<SearchResponse | null>(null);
+  const [flights, setFlights] = useState<Flight[]>([]);
+  const [flightsLoading, setFlightsLoading] = useState(false);
+
+  useEffect(() => {
+    fetchFlights();
+  }, []);
+
+  const fetchFlights = async () => {
+    setFlightsLoading(true);
+    try {
+      const response = await fetch("/api/flights");
+      const data = await response.json();
+      if (data.success) {
+        setFlights(data.flights);
+      }
+    } catch (error) {
+      console.error("Error fetching flights:", error);
+    } finally {
+      setFlightsLoading(false);
+    }
+  };
 
   const handleBookingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
