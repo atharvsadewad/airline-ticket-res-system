@@ -1,8 +1,117 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Plane, Code2 } from "lucide-react";
+import { Plane, Code2, CheckCircle, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { BookingRequest, SearchRequest, BookingResponse, SearchResponse } from "@shared/api";
+import { toast } from "@/components/ui/sonner";
 
 export default function Demo() {
+  const [bookingForm, setBookingForm] = useState({
+    flightNumber: "",
+    from: "",
+    to: "",
+    passengerName: "",
+  });
+
+  const [searchForm, setSearchForm] = useState({
+    ticketId: "",
+    bookingReference: "",
+    email: "",
+  });
+
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [bookingResult, setBookingResult] = useState<BookingResponse | null>(null);
+  const [searchResult, setSearchResult] = useState<SearchResponse | null>(null);
+
+  const handleBookingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBookingForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setSearchForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleBookingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBookingLoading(true);
+    setBookingResult(null);
+
+    try {
+      const response = await fetch("/api/booking", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingForm),
+      });
+
+      const data: BookingResponse = await response.json();
+      setBookingResult(data);
+
+      if (data.success) {
+        toast.success(`${data.message}\nTicket ID: ${data.ticketId}\nRef: ${data.bookingReference}`);
+        setBookingForm({
+          flightNumber: "",
+          from: "",
+          to: "",
+          passengerName: "",
+        });
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Failed to process booking. Please try again.");
+      setBookingResult({
+        success: false,
+        message: "Connection error",
+      });
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  const handleSearchSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchLoading(true);
+    setSearchResult(null);
+
+    try {
+      const response = await fetch("/api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(searchForm),
+      });
+
+      const data: SearchResponse = await response.json();
+      setSearchResult(data);
+
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error("Failed to search ticket. Please try again.");
+      setSearchResult({
+        success: false,
+        message: "Connection error",
+      });
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -26,14 +135,18 @@ export default function Demo() {
                   <Plane className="w-6 h-6 text-airline-600" />
                   <h2 className="text-2xl font-bold text-airline-900">Book a Ticket</h2>
                 </div>
-                <div className="space-y-4">
+                <form onSubmit={handleBookingSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-airline-900 mb-2">
                       Flight Number
                     </label>
                     <input
                       type="text"
+                      name="flightNumber"
+                      value={bookingForm.flightNumber}
+                      onChange={handleBookingChange}
                       placeholder="e.g., AI101"
+                      required
                       className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
                     />
                   </div>
@@ -44,7 +157,11 @@ export default function Demo() {
                       </label>
                       <input
                         type="text"
+                        name="from"
+                        value={bookingForm.from}
+                        onChange={handleBookingChange}
                         placeholder="e.g., DEL"
+                        required
                         className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
                       />
                     </div>
@@ -54,7 +171,11 @@ export default function Demo() {
                       </label>
                       <input
                         type="text"
+                        name="to"
+                        value={bookingForm.to}
+                        onChange={handleBookingChange}
                         placeholder="e.g., BOM"
+                        required
                         className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
                       />
                     </div>
@@ -65,14 +186,62 @@ export default function Demo() {
                     </label>
                     <input
                       type="text"
+                      name="passengerName"
+                      value={bookingForm.passengerName}
+                      onChange={handleBookingChange}
                       placeholder="Enter your name"
+                      required
                       className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
                     />
                   </div>
-                  <button className="w-full px-4 py-2 font-semibold text-white bg-airline-500 hover:bg-airline-600 rounded-lg transition-colors mt-6">
-                    Book Ticket
+                  <button
+                    type="submit"
+                    disabled={bookingLoading}
+                    className="w-full px-4 py-2 font-semibold text-white bg-airline-500 hover:bg-airline-600 disabled:bg-airline-300 rounded-lg transition-colors mt-6"
+                  >
+                    {bookingLoading ? "Processing..." : "Book Ticket"}
                   </button>
-                </div>
+                </form>
+
+                {bookingResult && (
+                  <div
+                    className={`mt-4 p-4 rounded-lg flex gap-3 ${
+                      bookingResult.success
+                        ? "bg-green-50 border border-green-200"
+                        : "bg-red-50 border border-red-200"
+                    }`}
+                  >
+                    {bookingResult.success ? (
+                      <>
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p
+                            className={`font-semibold ${
+                              bookingResult.success ? "text-green-900" : "text-red-900"
+                            }`}
+                          >
+                            {bookingResult.message}
+                          </p>
+                          {bookingResult.ticketId && (
+                            <>
+                              <p className="text-sm text-green-700 mt-1">
+                                Ticket ID: <span className="font-mono">{bookingResult.ticketId}</span>
+                              </p>
+                              <p className="text-sm text-green-700">
+                                Reference: <span className="font-mono">{bookingResult.bookingReference}</span>
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-red-900 font-semibold">{bookingResult.message}</p>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Search Demo */}
@@ -81,14 +250,18 @@ export default function Demo() {
                   <Code2 className="w-6 h-6 text-airline-600" />
                   <h2 className="text-2xl font-bold text-airline-900">Search Ticket</h2>
                 </div>
-                <div className="space-y-4">
+                <form onSubmit={handleSearchSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-airline-900 mb-2">
                       Ticket ID
                     </label>
                     <input
                       type="text"
+                      name="ticketId"
+                      value={searchForm.ticketId}
+                      onChange={handleSearchChange}
                       placeholder="e.g., TKT12345"
+                      required
                       className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
                     />
                   </div>
@@ -98,7 +271,11 @@ export default function Demo() {
                     </label>
                     <input
                       type="text"
+                      name="bookingReference"
+                      value={searchForm.bookingReference}
+                      onChange={handleSearchChange}
                       placeholder="e.g., ABC123XYZ"
+                      required
                       className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
                     />
                   </div>
@@ -108,33 +285,80 @@ export default function Demo() {
                     </label>
                     <input
                       type="email"
+                      name="email"
+                      value={searchForm.email}
+                      onChange={handleSearchChange}
                       placeholder="your@email.com"
+                      required
                       className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
                     />
                   </div>
-                  <button className="w-full px-4 py-2 font-semibold text-white bg-airline-500 hover:bg-airline-600 rounded-lg transition-colors mt-6">
-                    Search Ticket
+                  <button
+                    type="submit"
+                    disabled={searchLoading}
+                    className="w-full px-4 py-2 font-semibold text-white bg-airline-500 hover:bg-airline-600 disabled:bg-airline-300 rounded-lg transition-colors mt-6"
+                  >
+                    {searchLoading ? "Searching..." : "Search Ticket"}
                   </button>
-                </div>
+                </form>
+
+                {searchResult && (
+                  <div
+                    className={`mt-4 p-4 rounded-lg flex gap-3 ${
+                      searchResult.success
+                        ? "bg-green-50 border border-green-200"
+                        : "bg-red-50 border border-red-200"
+                    }`}
+                  >
+                    {searchResult.success && searchResult.ticket ? (
+                      <>
+                        <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-green-900">{searchResult.message}</p>
+                          <div className="text-sm text-green-700 mt-2 space-y-1">
+                            <p>
+                              <span className="font-semibold">Passenger:</span>{" "}
+                              {searchResult.ticket.passengerName}
+                            </p>
+                            <p>
+                              <span className="font-semibold">Flight:</span>{" "}
+                              {searchResult.ticket.flightNumber} ({searchResult.ticket.from} → {searchResult.ticket.to})
+                            </p>
+                            <p>
+                              <span className="font-semibold">Status:</span>{" "}
+                              {searchResult.ticket.status}
+                            </p>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <p className="text-red-900 font-semibold">{searchResult?.message}</p>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Code Output Section */}
             <div className="mt-12 bg-airline-900 rounded-2xl p-8 border border-airline-700 shadow-lg">
-              <h2 className="text-2xl font-bold text-white mb-6">Sample Output</h2>
+              <h2 className="text-2xl font-bold text-white mb-6">System Architecture</h2>
               <pre className="bg-black rounded-lg p-6 overflow-x-auto text-airline-100 text-sm font-mono">
-                {`Hash Table Search Results:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Ticket ID: TKT12345
-Status: O(1) search completed in 0.001ms
-Result: Found in hash table
+                {`Data Structure Performance Analysis:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Hash Table (Ticket Search):
+  • Operation: O(1) average case
+  • Use Case: Fast ticket lookup by ID
+  • Implementation: Hash map with ticket IDs as keys
 
-Binary Search Tree Results:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Flight: AI101
-Departure: 14:30 (Sorted by BST)
-Status: O(log n) lookup completed in 0.003ms
-Result: Flight found at tree node`}
+Binary Search Tree (Flight Sorting):
+  • Operation: O(log n) average case
+  • Use Case: Sorted flight management by departure time
+  • Implementation: BST maintaining order invariant
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Try booking a ticket above and then searching for it!`}
               </pre>
             </div>
           </div>
