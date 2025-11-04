@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import { Plane, Code2, CheckCircle, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import { BookingRequest, SearchRequest, BookingResponse, SearchResponse } from "@shared/api";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export default function Demo() {
   const [bookingForm, setBookingForm] = useState({
