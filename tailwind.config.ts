@@ -57,6 +57,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        airline: {
+          50: "hsl(210 100% 97%)",
+          100: "hsl(210 100% 94%)",
+          200: "hsl(210 98% 88%)",
+          300: "hsl(210 97% 77%)",
+          400: "hsl(210 95% 62%)",
+          500: "hsl(210 93% 48%)",
+          600: "hsl(210 90% 40%)",
+          700: "hsl(210 85% 32%)",
+          800: "hsl(210 80% 25%)",
+          900: "hsl(210 75% 18%)",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
