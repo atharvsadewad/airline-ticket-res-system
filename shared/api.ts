@@ -1,12 +1,37 @@
-/**
- * Shared code between client and server
- * Useful to share types between client and server
- * and/or small pure JS functions that can be used on both client and server
- */
-
-/**
- * Example response type for /api/demo
- */
 export interface DemoResponse {
   message: string;
+}
+
+export interface BookingRequest {
+  flightNumber: string;
+  from: string;
+  to: string;
+  passengerName: string;
+}
+
+export interface BookingResponse {
+  success: boolean;
+  message: string;
+  ticketId?: string;
+  bookingReference?: string;
+}
+
+export interface SearchRequest {
+  ticketId: string;
+  bookingReference: string;
+  email: string;
+}
+
+export interface SearchResponse {
+  success: boolean;
+  message: string;
+  ticket?: {
+    ticketId: string;
+    bookingReference: string;
+    flightNumber: string;
+    from: string;
+    to: string;
+    passengerName: string;
+    status: string;
+  };
 }
