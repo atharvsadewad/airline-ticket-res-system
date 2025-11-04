@@ -36,10 +36,29 @@ export default function Demo() {
   const [searchResult, setSearchResult] = useState<SearchResponse | null>(null);
   const [flights, setFlights] = useState<Flight[]>([]);
   const [flightsLoading, setFlightsLoading] = useState(false);
+  const bookingFormRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchFlights();
   }, []);
+
+  const handleBookNow = (flight: Flight) => {
+    // Set the flight in the booking form
+    const selectedFlight = flights.find((f) => f.number === flight.number);
+    if (selectedFlight) {
+      setBookingForm({
+        flightNumber: selectedFlight.number,
+        from: selectedFlight.from,
+        to: selectedFlight.to,
+        passengerName: "",
+      });
+
+      // Scroll to booking form
+      setTimeout(() => {
+        bookingFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 0);
+    }
+  };
 
   const fetchFlights = async () => {
     setFlightsLoading(true);
