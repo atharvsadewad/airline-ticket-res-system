@@ -1,9 +1,20 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Plane, Code2, CheckCircle, AlertCircle } from "lucide-react";
-import { useState } from "react";
+import { Plane, Code2, CheckCircle, AlertCircle, Clock, MapPin, Users } from "lucide-react";
+import { useState, useEffect } from "react";
 import { BookingRequest, SearchRequest, BookingResponse, SearchResponse } from "@shared/api";
 import { toast } from "sonner";
+
+interface Flight {
+  id: string;
+  number: string;
+  from: string;
+  to: string;
+  departure: string;
+  arrival: string;
+  price: number;
+  availableSeats: number;
+}
 
 export default function Demo() {
   const [bookingForm, setBookingForm] = useState({
