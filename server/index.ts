@@ -4,6 +4,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { handleBooking } from "./routes/booking";
 import { handleSearch } from "./routes/search";
+import { handleGetFlights } from "./routes/flights";
 
 export function createServer() {
   const app = express();
@@ -21,9 +22,10 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
-  // Booking and Search APIs
+  // Booking, Search, and Flight APIs
   app.post("/api/booking", handleBooking);
   app.post("/api/search", handleSearch);
+  app.get("/api/flights", handleGetFlights);
 
   return app;
 }
