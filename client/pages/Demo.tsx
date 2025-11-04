@@ -215,10 +215,9 @@ export default function Demo() {
                         type="text"
                         name="from"
                         value={bookingForm.from}
-                        onChange={handleBookingChange}
-                        placeholder="e.g., DEL"
-                        required
-                        className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
+                        readOnly
+                        placeholder="Select a flight"
+                        className="w-full px-4 py-2 border border-airline-200 rounded-lg bg-airline-50 text-airline-900 cursor-not-allowed"
                       />
                     </div>
                     <div>
@@ -229,10 +228,9 @@ export default function Demo() {
                         type="text"
                         name="to"
                         value={bookingForm.to}
-                        onChange={handleBookingChange}
-                        placeholder="e.g., BOM"
-                        required
-                        className="w-full px-4 py-2 border border-airline-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-airline-500 focus:border-transparent"
+                        readOnly
+                        placeholder="Select a flight"
+                        className="w-full px-4 py-2 border border-airline-200 rounded-lg bg-airline-50 text-airline-900 cursor-not-allowed"
                       />
                     </div>
                   </div>
