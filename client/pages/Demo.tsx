@@ -56,12 +56,31 @@ export default function Demo() {
     }
   };
 
-  const handleBookingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBookingChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setBookingForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    // If flight is being selected, auto-populate from/to
+    if (name === "flightNumber") {
+      const selectedFlight = flights.find((f) => f.number === value);
+      if (selectedFlight) {
+        setBookingForm((prev) => ({
+          ...prev,
+          flightNumber: value,
+          from: selectedFlight.from,
+          to: selectedFlight.to,
+        }));
+      } else {
+        setBookingForm((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
+    } else {
+      setBookingForm((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
